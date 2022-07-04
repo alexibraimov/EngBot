@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.32126.315
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EngBotApp", "EngBotApp.csproj", "{550DD5E9-A269-45E2-A1A9-37498E1D264A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{550DD5E9-A269-45E2-A1A9-37498E1D264A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{550DD5E9-A269-45E2-A1A9-37498E1D264A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{550DD5E9-A269-45E2-A1A9-37498E1D264A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{550DD5E9-A269-45E2-A1A9-37498E1D264A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {DC34E267-F82F-4596-977F-A0C3DCA12F89}
+	EndGlobalSection
+EndGlobal
