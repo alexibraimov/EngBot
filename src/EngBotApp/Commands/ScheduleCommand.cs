@@ -1,10 +1,13 @@
-﻿using System;
+﻿using EngBotApp.Models;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Telegram.Bot;
+using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
 
 namespace EngBotApp.Commands
@@ -27,8 +30,7 @@ namespace EngBotApp.Commands
         public async override void Execute()
         {
             var inlineKeyboard = new InlineKeyboardMarkup(new[] {
-                new [] {InlineKeyboardButton.WithCallbackData(text: "01:00", callbackData: "{\"type\":\"schedule\", \"data\":\"01:00\"}"),
-                       InlineKeyboardButton.WithCallbackData(text: "-", callbackData: "{\"type\":\"schedule\", \"data\":\"01:00\"}")},
+                new [] {InlineKeyboardButton.WithCallbackData(text: "01:00", callbackData: JsonConvert.SerializeObject( new Button() { Type = "schedule", Data = new Newtonsoft.Json.Linq.JObject("01:00") }))},
                 new [] {InlineKeyboardButton.WithCallbackData(text: "02:00", callbackData: "2")},
                 new [] {InlineKeyboardButton.WithCallbackData(text: "03:00", callbackData: "3")},
                 new [] {InlineKeyboardButton.WithCallbackData(text: "04:00", callbackData: "4")},
@@ -53,7 +55,7 @@ namespace EngBotApp.Commands
                 new [] {InlineKeyboardButton.WithCallbackData(text: "23:00", callbackData: "23")},
                 new [] {InlineKeyboardButton.WithCallbackData(text: "00:00", callbackData: "24")},
             });
-
+            
             await _bot.SendTextMessageAsync(
               chatId: _chatId,
               text: "Выберите расписание:",

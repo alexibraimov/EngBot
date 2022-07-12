@@ -1,4 +1,5 @@
 ﻿using EngBotApp.Files;
+using EngBotApp.Models.Contexts;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,7 +19,7 @@ namespace EngBotApp
     {
         async static Task Main(string[] args)
         {
-            var words = Words.All;
+            var words = WordCollection.All;
             var bot = new BotWrapper().Startup("{token}");
             Console.ReadLine();
             bot.Dispose();

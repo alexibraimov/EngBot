@@ -1,4 +1,5 @@
 ﻿using EngBotApp.Commands;
+using EngBotApp.Models.Contexts;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -62,8 +63,9 @@ namespace EngBotApp
 
         private async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
         {
+          
             // Only process Message updates: https://core.telegram.org/bots/api#message
-            var message = update.Message;
+            Message message = update.Message;
 
             if (update.Type == UpdateType.CallbackQuery)
             {
@@ -80,6 +82,27 @@ namespace EngBotApp
             }
             if (update.Message == null)
                 return;
+            using (var db = new TelegramContext())
+            {
+                var tUser = new Models.TelegramUser()
+                {
+                    ChatId = update.Message.Chat.Id,
+                    Username = update.Message.Chat.Username,
+                    LastName = update.Message.Chat.LastName,
+                    FirstName = update.Message.Chat.FirstName,
+                };
+                db.Add(tUser);
+                foreach (var item in db.GetAllWords(tUser))
+                {
+                    db.Add(item);
+                }
+                db.SaveChanges();
+            }
+            using (var db = new TelegramContext())
+            {
+                var u = db.Users.First();
+
+            }
             var messageText = update.Message.Text;
             if (update.Message.Text == null)
                 return;

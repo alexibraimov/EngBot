@@ -1,4 +1,5 @@
-﻿using EngBotApp.Models;
+﻿using EngBotApp.Helpers;
+using EngBotApp.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -8,9 +9,9 @@ using System.Threading.Tasks;
 
 namespace EngBotApp.Files
 {
-    public static class Words
+    public static class WordCollection
     {
-        static Words() 
+        static WordCollection() 
         {
             All = new List<Word>();
             Parser();
