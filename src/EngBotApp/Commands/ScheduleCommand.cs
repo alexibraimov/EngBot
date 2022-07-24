@@ -1,4 +1,5 @@
 ﻿using EngBotApp.Models;
+using EngBotApp.Models.Contexts;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -14,8 +15,36 @@ namespace EngBotApp.Commands
 {
     public class ScheduleCommand : BaseCommand
     {
-        public ScheduleCommand(ITelegramBotClient bot, long chatId, CancellationToken cancellationToken)
-            : base(bot, chatId, cancellationToken)
+        private static IDictionary<string, int> _times = new Dictionary<string, int>()
+        {
+           ["01:00"] = 1,
+           ["02:00"] = 2,
+           ["03:00"] = 3,
+           ["04:00"] = 4,
+           ["05:00"] = 5,
+           ["06:00"] = 6,
+           ["07:00"] = 7,
+           ["08:00"] = 8,
+           ["09:00"] = 9,
+           ["10:00"] = 10,
+           ["11:00"] = 11,
+           ["12:00"] = 12,
+           ["13:00"] = 13,
+           ["14:00"] = 14,
+           ["15:00"] = 15,
+           ["16:00"] = 16,
+           ["17:00"] = 17,
+           ["18:00"] = 18,
+           ["19:00"] = 19,
+           ["20:00"] = 20,
+           ["21:00"] = 21,
+           ["22:00"] = 22,
+           ["23:00"] = 23,
+           ["00:00"] = 0,
+        };
+
+        public ScheduleCommand(ITelegramBotClient bot, IRepository<UserInfo> repository, long chatId, CancellationToken cancellationToken)
+            : base(bot, repository, chatId, cancellationToken)
         {
 
         }
@@ -29,38 +58,40 @@ namespace EngBotApp.Commands
 
         public async override void Execute()
         {
-            var inlineKeyboard = new InlineKeyboardMarkup(new[] {
-                new [] {InlineKeyboardButton.WithCallbackData(text: "01:00", callbackData: JsonConvert.SerializeObject( new Button() { Type = "schedule", Data = new Newtonsoft.Json.Linq.JObject("01:00") }))},
-                new [] {InlineKeyboardButton.WithCallbackData(text: "02:00", callbackData: "2")},
-                new [] {InlineKeyboardButton.WithCallbackData(text: "03:00", callbackData: "3")},
-                new [] {InlineKeyboardButton.WithCallbackData(text: "04:00", callbackData: "4")},
-                new [] {InlineKeyboardButton.WithCallbackData(text: "05:00", callbackData: "5")},
-                new [] {InlineKeyboardButton.WithCallbackData(text: "06:00", callbackData: "6")},
-                new [] {InlineKeyboardButton.WithCallbackData(text: "07:00", callbackData: "7")},
-                new [] {InlineKeyboardButton.WithCallbackData(text: "08:00", callbackData: "8")},
-                new [] {InlineKeyboardButton.WithCallbackData(text: "09:00", callbackData: "9")},
-                new [] {InlineKeyboardButton.WithCallbackData(text: "10:00", callbackData: "10")},
-                new [] {InlineKeyboardButton.WithCallbackData(text: "11:00", callbackData: "11")},
-                new [] {InlineKeyboardButton.WithCallbackData(text: "12:00", callbackData: "12")},
-                new [] {InlineKeyboardButton.WithCallbackData(text: "13:00", callbackData: "13")},
-                new [] {InlineKeyboardButton.WithCallbackData(text: "14:00", callbackData: "14")},
-                new [] {InlineKeyboardButton.WithCallbackData(text: "15:00", callbackData: "15")},
-                new [] {InlineKeyboardButton.WithCallbackData(text: "16:00", callbackData: "16")},
-                new [] {InlineKeyboardButton.WithCallbackData(text: "17:00", callbackData: "17")},
-                new [] {InlineKeyboardButton.WithCallbackData(text: "18:00", callbackData: "18")},
-                new [] {InlineKeyboardButton.WithCallbackData(text: "19:00", callbackData: "19")},
-                new [] {InlineKeyboardButton.WithCallbackData(text: "20:00", callbackData: "20")},
-                new [] {InlineKeyboardButton.WithCallbackData(text: "21:00", callbackData: "21")},
-                new [] {InlineKeyboardButton.WithCallbackData(text: "22:00", callbackData: "22")},
-                new [] {InlineKeyboardButton.WithCallbackData(text: "23:00", callbackData: "23")},
-                new [] {InlineKeyboardButton.WithCallbackData(text: "00:00", callbackData: "24")},
-            });
-            
-            await _bot.SendTextMessageAsync(
-              chatId: _chatId,
-              text: "Выберите расписание:",
-              replyMarkup: inlineKeyboard,
-              cancellationToken: _cancellationToken);
+            var keyboard = new List<InlineKeyboardButton[]>();
+            var userInfo = _repository.FindById(_chatId);
+            var userTimes = userInfo.Schedule.Select(time=>time.ToString(@"hh\:mm"));
+            foreach (var time in _times)
+            {
+                var isEnabled = userTimes.Contains(time.Key);
+                var timeStr = time.Key + (isEnabled ? " ✓" : string.Empty);
+                keyboard.Add(new[] { InlineKeyboardButton.WithCallbackData(text: timeStr, callbackData: JsonConvert.SerializeObject(new Button() { Type = "schedule", Data = new Newtonsoft.Json.Linq.JObject() { ["hour"] = time.Value, ["isEnabled"] = isEnabled } })) });   
+            }
+            keyboard.Add(new[] { InlineKeyboardButton.WithCallbackData(text: "Принять", callbackData: JsonConvert.SerializeObject(new Button() { Type = "accept_schedule", Data = null })) });
+            Message message;
+            if (userInfo.MessageId == 0)
+            {
+                 message = await _bot.SendTextMessageAsync(
+                   chatId: _chatId,
+                   text: "Выберите расписание: (UTC)",
+                   replyMarkup: new InlineKeyboardMarkup(keyboard),
+                   cancellationToken: _cancellationToken);
+            }
+            else
+            {
+                 message = await _bot.EditMessageTextAsync(
+                      chatId: _chatId,
+                      messageId: userInfo.MessageId,
+                      text: "Выберите расписание:",
+                      replyMarkup: new InlineKeyboardMarkup(keyboard),
+                      cancellationToken: _cancellationToken);
+            }
+
+            if (message!=null)
+            {
+                userInfo.MessageId = message.MessageId;
+                _repository.Save(userInfo);
+            }
         }
     }
 }

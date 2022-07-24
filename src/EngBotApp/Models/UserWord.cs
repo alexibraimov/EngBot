@@ -7,22 +7,15 @@ using System.Threading.Tasks;
 
 namespace EngBotApp.Models
 {
-    public class TelegramWord
+    public class UserWord
     {
-        [JsonProperty("id")]
-        public long TelegramWordId { get; set; }
         [JsonProperty("wordId")]
-        public int WordId { get; set; }
-        
+        public long WordId { get; set; }   
         [JsonProperty("en")]
         public string En { get; set; }
         [JsonProperty("ru")]
         public string Ru { get; set; }
         [JsonProperty("isRemembered")]
         public bool IsRemembered { get; set; }
-
-        public long TelegramUserId { get; set; }
-        [JsonProperty("user")]
-        public TelegramUser TelegramUser { get; set; }
     }
 }

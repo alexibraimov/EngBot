@@ -1,4 +1,6 @@
-﻿using System;
+﻿using EngBotApp.Models;
+using EngBotApp.Models.Contexts;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,8 +12,8 @@ namespace EngBotApp.Commands
 {
     public class StartCommand : BaseCommand
     {
-        public StartCommand(ITelegramBotClient bot, long chatId, CancellationToken cancellationToken) 
-            : base(bot, chatId, cancellationToken) { }
+        public StartCommand(ITelegramBotClient bot, Models.Contexts.IRepository<UserInfo> repository, long chatId, CancellationToken cancellationToken) 
+            : base(bot, repository, chatId, cancellationToken) { }
 
         public override string Command => "start";
 

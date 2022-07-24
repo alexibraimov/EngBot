@@ -1,5 +1,6 @@
 ﻿using EngBotApp.Commands;
 using EngBotApp.Models.Contexts;
+using EngBotApp.UseCases;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -16,9 +17,8 @@ namespace EngBotApp
 {
     public class BotWrapper : IDisposable
     {
-        private bool _isDisposed;
         private CancellationTokenSource _cts;
-        private ConcurrentQueue<ICommand> _commands = new ConcurrentQueue<ICommand>();
+        private EngUseCase _engUseCase;
         public BotWrapper()
         {
         }
@@ -26,19 +26,8 @@ namespace EngBotApp
         public BotWrapper Startup(string token) 
         {
             Initialize(token).Wait();
-            Task.Run(() =>
-            {
-                while (!_isDisposed)
-                {
-                    if (_commands.TryDequeue(out ICommand command))
-                    {
-                        if (command.CanExecute())
-                        {
-                            command.Execute();
-                        }
-                    }
-                }
-            });
+            _engUseCase = new EngUseCase();
+            _engUseCase.Setup();
             return this;
         }
 
@@ -63,71 +52,43 @@ namespace EngBotApp
 
         private async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
         {
-          
+
             // Only process Message updates: https://core.telegram.org/bots/api#message
-            Message message = update.Message;
-
-            if (update.Type == UpdateType.CallbackQuery)
+            if (update == null)
             {
-                var callback = update.CallbackQuery;
-                if (callback!=null)
-                {
-                    switch (callback.Data)
-                    {
-                        default:
-                            break;
-                    }
-                }
                 return;
             }
-            if (update.Message == null)
-                return;
-            using (var db = new TelegramContext())
+            switch (update.Type)
             {
-                var tUser = new Models.TelegramUser()
-                {
-                    ChatId = update.Message.Chat.Id,
-                    Username = update.Message.Chat.Username,
-                    LastName = update.Message.Chat.LastName,
-                    FirstName = update.Message.Chat.FirstName,
-                };
-                db.Add(tUser);
-                foreach (var item in db.GetAllWords(tUser))
-                {
-                    db.Add(item);
-                }
-                db.SaveChanges();
-            }
-            using (var db = new TelegramContext())
-            {
-                var u = db.Users.First();
-
-            }
-            var messageText = update.Message.Text;
-            if (update.Message.Text == null)
-                return;
-
-
-            var chatId = message.Chat.Id;
-
-            Console.WriteLine($"Received a '{messageText}' message in chat {chatId}.");
-
-            switch (message.Text)
-            {
-                case "/start":
+                case UpdateType.Message:
                     {
-                        _commands.Enqueue(new StartCommand(botClient, chatId, cancellationToken));
+                        var message = update.Message;
+
+                        if (message == null)
+                        {
+                            return;
+                        }
+
+                        var chatId = message.Chat.Id;
+                        var username = message.Chat.Username;
+
+                        _engUseCase.SendMessage(botClient, chatId, username, message.Text, _cts.Token);
                     }
                     break;
-                case "/set_schedule":
+                case UpdateType.CallbackQuery:
                     {
-                        _commands.Enqueue(new ScheduleCommand(botClient, chatId, cancellationToken));
+                        var callback = update.CallbackQuery;
+                        if (callback == null || callback.Message == null || callback.Message.Chat == null)
+                        {
+                            return;
+                        }
+                        var chatId = update.CallbackQuery.Message.Chat.Id;
+                        var username = update.CallbackQuery.Message.Chat.Username;
+
+                        _engUseCase.CallbackQuery(botClient, chatId, username, callback.Data, _cts.Token);             
                     }
                     break;
-                default:
-                    break;
             }
-
         }
 
         private Task HandlePollingErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
@@ -137,7 +98,6 @@ namespace EngBotApp
 
         public void Dispose()
         {
-            _isDisposed = true;
             _cts?.Cancel();
         }
     }
