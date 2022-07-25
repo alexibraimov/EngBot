@@ -29,7 +29,7 @@ namespace EngBotApp.UseCases
             {
                 try
                 {
-                    var currentTime = DateTime.UtcNow.AddHours(1);
+                    var currentTime = DateTime.UtcNow;
 
                     var users = _repository.GetAll().ToArray();
 

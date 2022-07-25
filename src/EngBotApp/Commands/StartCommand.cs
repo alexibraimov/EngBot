@@ -24,9 +24,13 @@ namespace EngBotApp.Commands
 
         public override async void Execute()
         {
+            var text = "Вас привествует EngBot!\n";
+            text += "Список команд:\n";
+            text += "/set_schedule\n";
+            text += "/get_schedule";
             await _bot.SendTextMessageAsync(
                chatId: _chatId,
-               text: "Добро пожаловать!" ,
+               text: text,
                cancellationToken: _cancellationToken);
         }
     
