@@ -14,20 +14,29 @@ using Telegram.Bot;
 
 namespace EngBotApp.UseCases
 {
-    public class EngUseCase : IDisposable
+    public class BotUseCase : IDisposable
     {
         private ConcurrentQueue<ICommand> _commands = new ConcurrentQueue<ICommand>();
         private Models.Contexts.IRepository<UserInfo> _repository;
         private bool _isDisposed;
-
-        public EngUseCase()
+        private ITelegramBotClient _botClient;
+        private WordMachine _wordMachine;
+        public BotUseCase()
         {
             _repository = new UserRepository();
+            _wordMachine = new WordMachine(_repository);
+            _wordMachine.OnWord += OnWord;
         }
 
-        public void Setup()
+        private void OnWord(long chatId, UserWord word)
         {
-            Task.Run(() =>
+            _commands.Enqueue(new WordCommand(_botClient, _repository, chatId, word, CancellationToken.None));
+        }
+
+        public void Setup(ITelegramBotClient botClient)
+        {
+            _botClient = botClient;
+            new Thread(()=> 
             {
                 while (!_isDisposed)
                 {
@@ -36,10 +45,18 @@ namespace EngBotApp.UseCases
                         if (command.CanExecute())
                         {
                             command.Execute();
+                            if (command.Command == "accept_schedule")
+                            {
+                                Thread.Sleep(500);
+                            }
                         }
                     }
+                    else
+                    {
+                        Thread.Sleep(100);
+                    }
                 }
-            });
+            }) { Name = "Telegram bot thread" }.Start();
         }
 
         public void SendMessage(ITelegramBotClient botClient, long chatId, string username, string message, CancellationToken cancellationToken)
@@ -50,19 +67,29 @@ namespace EngBotApp.UseCases
             }
 
             var userInfo = _repository.FindById(chatId);
-
+            if (userInfo == null)
+            {
+                return;
+            }
+            if (userInfo.MessageId != 0)
+            {
+                _commands.Enqueue(new AcceptScheduleCommand(botClient, _repository, chatId, cancellationToken));
+            }
             switch (message)
             {
                 case "/start":
                     {
                         _commands.Enqueue(new StartCommand(botClient,  _repository, chatId, cancellationToken));
-                        userInfo.MessageId = 0;
-                        _repository.Save(userInfo);
                     }
                     break;
                 case "/set_schedule":
                     {
-                        _commands.Enqueue(new ScheduleCommand(botClient, _repository, chatId, cancellationToken));
+                        _commands.Enqueue(new SetScheduleCommand(botClient, _repository, chatId, cancellationToken));
+                    }
+                    break;
+                case "/get_schedule":
+                    {
+                        _commands.Enqueue(new GetScheduleCommand(botClient, _repository, chatId, cancellationToken));
                     }
                     break;
                 default:
@@ -94,12 +121,17 @@ namespace EngBotApp.UseCases
                             userInfo.Schedule.Remove(TimeSpan.FromHours(time));
                         }
 
-                        _commands.Enqueue(new ScheduleCommand(botClient, _repository, chatId, cancellationToken));
+                        _commands.Enqueue(new SetScheduleCommand(botClient, _repository, chatId, cancellationToken));
                     }
                     break;
                 case "accept_schedule":
                     {
-                        _commands.Enqueue(new AcceptScheduleCommand(botClient, _repository, chatId, cancellationToken));
+                        _commands.Enqueue(new GetScheduleCommand(botClient, _repository, chatId, cancellationToken));
+                    }
+                    break;
+                case "change_schedule":
+                    {
+                        _commands.Enqueue(new SetScheduleCommand(botClient, _repository, chatId, cancellationToken));
                     }
                     break;
             }
@@ -109,6 +141,7 @@ namespace EngBotApp.UseCases
         {
             _isDisposed = true;
             _commands = null;
+            _wordMachine.Dispose();
         }
     }
 }

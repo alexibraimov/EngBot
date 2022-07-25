@@ -18,7 +18,7 @@ namespace EngBotApp
     public class BotWrapper : IDisposable
     {
         private CancellationTokenSource _cts;
-        private EngUseCase _engUseCase;
+        private BotUseCase _engUseCase;
         public BotWrapper()
         {
         }
@@ -26,8 +26,6 @@ namespace EngBotApp
         public BotWrapper Startup(string token) 
         {
             Initialize(token).Wait();
-            _engUseCase = new EngUseCase();
-            _engUseCase.Setup();
             return this;
         }
 
@@ -48,6 +46,9 @@ namespace EngBotApp
                                      cancellationToken: _cts.Token);
 
             var me = await botClient.GetMeAsync();
+
+            _engUseCase = new BotUseCase();
+            _engUseCase.Setup(botClient);
         }
 
         private async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
@@ -99,6 +100,7 @@ namespace EngBotApp
         public void Dispose()
         {
             _cts?.Cancel();
+            _engUseCase.Dispose();
         }
     }
 }

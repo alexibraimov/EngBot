@@ -17,6 +17,7 @@ namespace EngBotApp.Models
             IsEnabled = true;
             Words = new List<UserWord>();
             Schedule = new List<TimeSpan>();
+            RememderedWords = new List<UserWord>();
         }
 
         [JsonProperty("chatId")]
@@ -27,10 +28,14 @@ namespace EngBotApp.Models
         public bool IsEnabled { get; set; }
         [JsonProperty("words")]
         public List<UserWord> Words {get; set;}
+        [JsonProperty("rememderedWords")]
+        public List<UserWord> RememderedWords { get; set; }
         [JsonProperty("schedule")]
         public List<TimeSpan> Schedule { get; set; }
         [JsonProperty("messageId")]
         public int MessageId { get; set; }
+        [JsonProperty("lastUpdateDate")]
+        public DateTime? LastUpdateDate { get; set; }
 
         public override string ToString()
         {

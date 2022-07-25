@@ -13,15 +13,16 @@ using Telegram.Bot.Types.ReplyMarkups;
 
 namespace EngBotApp.Commands
 {
-    public class AcceptScheduleCommand : BaseCommand
+    public class WordCommand : BaseCommand
     {
-        public AcceptScheduleCommand(ITelegramBotClient bot, IRepository<UserInfo> repository, long chatId, CancellationToken cancellationToken)
+        private UserWord _userWord;
+        public WordCommand(ITelegramBotClient bot, IRepository<UserInfo> repository, long chatId, UserWord userWord, CancellationToken cancellationToken)
             : base(bot, repository, chatId, cancellationToken)
         {
-
+            _userWord = userWord;
         }
 
-        public override string Command => "accept_schedule";
+        public override string Command => "word_command";
 
         public override bool CanExecute()
         {
@@ -37,19 +38,11 @@ namespace EngBotApp.Commands
                 return;
             }
 
-            var messageId = userInfo.MessageId;
-            if (messageId == 0)
-            {
-                return;
-            }
-            userInfo.MessageId = 0;
-            _repository.Save(userInfo);
-
             try
             {
-                await _bot.DeleteMessageAsync(
+                await _bot.SendTextMessageAsync(
                           chatId: _chatId,
-                          messageId: messageId,
+                          text: _userWord.ToString(),
                           cancellationToken: _cancellationToken);
             }
             catch

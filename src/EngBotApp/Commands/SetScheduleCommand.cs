@@ -13,7 +13,7 @@ using Telegram.Bot.Types.ReplyMarkups;
 
 namespace EngBotApp.Commands
 {
-    public class ScheduleCommand : BaseCommand
+    public class SetScheduleCommand : BaseCommand
     {
         private static IDictionary<string, int> _times = new Dictionary<string, int>()
         {
@@ -43,7 +43,7 @@ namespace EngBotApp.Commands
            ["00:00"] = 0,
         };
 
-        public ScheduleCommand(ITelegramBotClient bot, IRepository<UserInfo> repository, long chatId, CancellationToken cancellationToken)
+        public SetScheduleCommand(ITelegramBotClient bot, IRepository<UserInfo> repository, long chatId, CancellationToken cancellationToken)
             : base(bot, repository, chatId, cancellationToken)
         {
 
@@ -82,12 +82,12 @@ namespace EngBotApp.Commands
                  message = await _bot.EditMessageTextAsync(
                       chatId: _chatId,
                       messageId: userInfo.MessageId,
-                      text: "Выберите расписание:",
+                      text: "Выберите расписание: (UTC)",
                       replyMarkup: new InlineKeyboardMarkup(keyboard),
                       cancellationToken: _cancellationToken);
             }
 
-            if (message!=null)
+            if (message != null)
             {
                 userInfo.MessageId = message.MessageId;
                 _repository.Save(userInfo);
