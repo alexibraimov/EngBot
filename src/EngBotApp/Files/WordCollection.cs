@@ -21,7 +21,7 @@ namespace EngBotApp.Files
 
         private static void Parser()
         {
-            var path = Path.Combine(Environment.CurrentDirectory, "Resources//allwords.csv");
+            var path = Path.Combine(Environment.CurrentDirectory, "Resources//words.csv");
 
             using(var sr = new StreamReader(path)) 
             {

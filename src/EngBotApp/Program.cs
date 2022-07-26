@@ -20,9 +20,16 @@ namespace EngBotApp
         async static Task Main(string[] args)
         {
             var words = WordCollection.All;
-            var bot = new BotWrapper().Startup("{token}");
-            Console.ReadLine();
-            bot.Dispose();
+            try
+            {
+                var bot = new BotWrapper().Startup("{token}");
+                Console.ReadLine();
+                bot.Dispose();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
         }
     }
 }
