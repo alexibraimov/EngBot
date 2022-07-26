@@ -280,6 +280,7 @@
     <Compile Include="Commands\AcceptScheduleCommand.cs" />
     <Compile Include="Commands\SetScheduleCommand.cs" />
     <Compile Include="Commands\StartCommand.cs" />
+    <Compile Include="Files\VoiceCollection.cs" />
     <Compile Include="Files\WordCollection.cs" />
     <Compile Include="Helpers\RandomHelper.cs" />
     <Compile Include="Models\Button.cs" />

@@ -1,4 +1,5 @@
-﻿using EngBotApp.Models;
+﻿using EngBotApp.Files;
+using EngBotApp.Models;
 using EngBotApp.Models.Contexts;
 using Newtonsoft.Json;
 using System;
@@ -9,6 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Telegram.Bot;
 using Telegram.Bot.Types;
+using Telegram.Bot.Types.InputFiles;
 using Telegram.Bot.Types.ReplyMarkups;
 
 namespace EngBotApp.Commands
@@ -40,10 +42,15 @@ namespace EngBotApp.Commands
 
             try
             {
-                await _bot.SendTextMessageAsync(
-                          chatId: _chatId,
-                          text: _userWord.ToString(),
-                          cancellationToken: _cancellationToken);
+                using (var stream = VoiceCollection.GetStream(_userWord.WordId))
+                {
+                    await _bot.SendAudioAsync(
+                        chatId: _chatId,
+                        audio: stream,
+                        caption: $"<b>{_userWord.ToString()}</b>",
+                        parseMode: Telegram.Bot.Types.Enums.ParseMode.Html,
+                        cancellationToken: _cancellationToken);
+                }
             }
             catch
             {

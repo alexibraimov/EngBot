@@ -73,7 +73,8 @@ namespace EngBotApp.Commands
             {
                  message = await _bot.SendTextMessageAsync(
                    chatId: _chatId,
-                   text: "Выберите расписание: (UTC)",
+                   text: "<b>Выберите расписание: (UTC)</b>",
+                   parseMode: Telegram.Bot.Types.Enums.ParseMode.Html,
                    replyMarkup: new InlineKeyboardMarkup(keyboard),
                    cancellationToken: _cancellationToken);
             }
@@ -82,7 +83,8 @@ namespace EngBotApp.Commands
                  message = await _bot.EditMessageTextAsync(
                       chatId: _chatId,
                       messageId: userInfo.MessageId,
-                      text: "Выберите расписание: (UTC)",
+                      text: "<b>Выберите расписание: (UTC)</b>",
+                      parseMode: Telegram.Bot.Types.Enums.ParseMode.Html,
                       replyMarkup: new InlineKeyboardMarkup(keyboard),
                       cancellationToken: _cancellationToken);
             }
