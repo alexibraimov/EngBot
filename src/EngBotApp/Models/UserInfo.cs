@@ -33,37 +33,26 @@ namespace EngBotApp.Models
         [JsonProperty("schedule")]
         public List<TimeSpan> Schedule { get; set; }
         [JsonProperty("messageId")]
-        public int MessageId { get; set; }
+        public int LastMessageId { get; set; }
         [JsonProperty("lastUpdateDate")]
         public DateTime? LastUpdateDate { get; set; }
+        [JsonProperty("timezone")]
+        public TimeSpan Timezone { get; set; }
+
+        [JsonProperty("isSetup")]
+        public bool IsSetup { get; set; }
 
         public override string ToString()
         {
             return JsonConvert.SerializeObject(this);
         }
 
-
         public static UserInfo Create(long id, string username)
         {
             var userInfo = new UserInfo(id, username);
 
-            userInfo.Schedule = new List<TimeSpan>()
-            {
-                TimeSpan.FromHours(9),
-                TimeSpan.FromHours(10),
-                TimeSpan.FromHours(11),
-                TimeSpan.FromHours(12),
-                TimeSpan.FromHours(13),
-                TimeSpan.FromHours(14),
-                TimeSpan.FromHours(15),
-                TimeSpan.FromHours(16),
-                TimeSpan.FromHours(17),
-                TimeSpan.FromHours(18),
-                TimeSpan.FromHours(19),
-                TimeSpan.FromHours(20),
-                TimeSpan.FromHours(21)
-            };
-
+            userInfo.Schedule = new List<TimeSpan>();
+            userInfo.IsSetup = false;
             userInfo.Words = WordCollection.All.Select(w => new UserWord() 
             {
                 WordId = w.Id,

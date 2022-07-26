@@ -11,7 +11,7 @@ namespace EngBotApp.Files
     {
         public static Stream GetStream(long id)
         {
-            var path = Path.Combine(Environment.CurrentDirectory, $"Resources//Sounds//{id}.ogg");
+            var path = Path.Combine(Environment.CurrentDirectory, $"Resources//Sounds//{id}.wav");
 
             if (File.Exists(path))
             {
@@ -19,6 +19,13 @@ namespace EngBotApp.Files
             }
 
             return null;
+        }
+
+        public static TimeSpan GetSoundDuration(long id)
+        {
+            var file = TagLib.File.Create(Path.Combine(Environment.CurrentDirectory, $"Resources//Sounds//{id}.wav"));
+
+            return file.Properties.Duration;
         }
     }
 }

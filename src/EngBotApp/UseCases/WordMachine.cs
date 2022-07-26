@@ -31,11 +31,12 @@ namespace EngBotApp.UseCases
                 {
                     var currentTime = DateTime.UtcNow;
 
-                    var users = _repository.GetAll().ToArray();
+                    var users = _repository.GetAll().Where(u=>u.IsSetup).ToArray();
 
                     foreach (var user in users)
                     {
-                        if (user.LastUpdateDate == null || currentTime.Hour != user.LastUpdateDate.Value.Hour)
+                        var date = currentTime.Add(user.Timezone);
+                        if (user.LastUpdateDate == null || date.Hour != user.LastUpdateDate.Value.Hour)
                         {
                             foreach (var time in user.Schedule)
                             {
@@ -44,7 +45,7 @@ namespace EngBotApp.UseCases
                                     var words = user.Words.ToArray();
                                     var word = words[RandomHelper.Random.Next(0, words.Length - 1)];
 
-                                    user.LastUpdateDate = currentTime;
+                                    user.LastUpdateDate = date;
                                     user.Words.Remove(word);
                                     user.RememderedWords.Add(word);
 

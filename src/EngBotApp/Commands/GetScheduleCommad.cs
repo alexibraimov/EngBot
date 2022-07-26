@@ -53,7 +53,7 @@ namespace EngBotApp.Commands
             keyboard.Add(new[] { InlineKeyboardButton.WithCallbackData(text: "Изменить", callbackData: JsonConvert.SerializeObject(new Button() { Type = "change_schedule", Data = null })) });
 
             Message message;
-            if (userInfo.MessageId == 0)
+            if (userInfo.LastMessageId == 0)
             {
                 message = await _bot.SendTextMessageAsync(
                           chatId: _chatId,
@@ -66,14 +66,15 @@ namespace EngBotApp.Commands
             {
                 message = await _bot.EditMessageTextAsync(
                      chatId: _chatId,
-                     messageId: userInfo.MessageId,
+                     messageId: userInfo.LastMessageId,
                      text: text,
                      parseMode : Telegram.Bot.Types.Enums.ParseMode.Html,
                      replyMarkup: new InlineKeyboardMarkup(keyboard),
                      cancellationToken: _cancellationToken);
             }
 
-            userInfo.MessageId = message.MessageId;
+            userInfo.LastMessageId = message.MessageId;
+            userInfo.IsSetup = true;
             _repository.Save(userInfo);
         }
     }

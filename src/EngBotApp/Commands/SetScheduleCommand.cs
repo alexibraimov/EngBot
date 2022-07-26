@@ -69,11 +69,11 @@ namespace EngBotApp.Commands
             }
             keyboard.Add(new[] { InlineKeyboardButton.WithCallbackData(text: "Принять", callbackData: JsonConvert.SerializeObject(new Button() { Type = "accept_schedule", Data = null })) });
             Message message;
-            if (userInfo.MessageId == 0)
+            if (userInfo.LastMessageId == 0)
             {
                  message = await _bot.SendTextMessageAsync(
                    chatId: _chatId,
-                   text: "<b>Выберите расписание: (UTC)</b>",
+                   text: "<b>Выберите расписание: </b>",
                    parseMode: Telegram.Bot.Types.Enums.ParseMode.Html,
                    replyMarkup: new InlineKeyboardMarkup(keyboard),
                    cancellationToken: _cancellationToken);
@@ -82,8 +82,8 @@ namespace EngBotApp.Commands
             {
                  message = await _bot.EditMessageTextAsync(
                       chatId: _chatId,
-                      messageId: userInfo.MessageId,
-                      text: "<b>Выберите расписание: (UTC)</b>",
+                      messageId: userInfo.LastMessageId,
+                      text: "<b>Выберите расписание: </b>",
                       parseMode: Telegram.Bot.Types.Enums.ParseMode.Html,
                       replyMarkup: new InlineKeyboardMarkup(keyboard),
                       cancellationToken: _cancellationToken);
@@ -91,7 +91,7 @@ namespace EngBotApp.Commands
 
             if (message != null)
             {
-                userInfo.MessageId = message.MessageId;
+                userInfo.LastMessageId = message.MessageId;
                 _repository.Save(userInfo);
             }
         }

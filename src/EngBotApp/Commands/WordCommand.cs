@@ -42,15 +42,15 @@ namespace EngBotApp.Commands
 
             try
             {
+                await _bot.SendTextMessageAsync(chatId: _chatId, $"<b>{_userWord.ToString()}</b>", parseMode: Telegram.Bot.Types.Enums.ParseMode.Html, cancellationToken: _cancellationToken);
                 using (var stream = VoiceCollection.GetStream(_userWord.WordId))
                 {
                     await _bot.SendVoiceAsync(
                         chatId: _chatId,
                         voice: stream,
-                        caption: $"<b>{_userWord.ToString()}</b>",
-                        parseMode: Telegram.Bot.Types.Enums.ParseMode.Html,
-                        duration: 20,
-                        cancellationToken: _cancellationToken); ;
+                        duration: (int) VoiceCollection.GetSoundDuration(_userWord.WordId).TotalSeconds,
+                        disableNotification: true,
+                        cancellationToken: _cancellationToken); 
                 }
             }
             catch

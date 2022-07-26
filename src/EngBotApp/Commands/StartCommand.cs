@@ -26,8 +26,7 @@ namespace EngBotApp.Commands
         {
             var text = "Вас привествует EngBot!\n";
             text += "Список команд:\n";
-            text += "/set_schedule\n";
-            text += "/get_schedule";
+            text += "/setup\n";
             await _bot.SendTextMessageAsync(
                chatId: _chatId,
                text: text,

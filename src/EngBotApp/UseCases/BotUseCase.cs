@@ -71,7 +71,7 @@ namespace EngBotApp.UseCases
             {
                 return;
             }
-            if (userInfo.MessageId != 0)
+            if (userInfo.LastMessageId != 0)
             {
                 _commands.Enqueue(new AcceptScheduleCommand(botClient, _repository, chatId, cancellationToken));
             }
@@ -82,14 +82,19 @@ namespace EngBotApp.UseCases
                         _commands.Enqueue(new StartCommand(botClient,  _repository, chatId, cancellationToken));
                     }
                     break;
-                case "/set_schedule":
+                //case "/set_schedule":
+                //    {
+                //        _commands.Enqueue(new SetScheduleCommand(botClient, _repository, chatId, cancellationToken));
+                //    }
+                //    break;
+                //case "/get_schedule":
+                //    {
+                //        _commands.Enqueue(new GetScheduleCommand(botClient, _repository, chatId, cancellationToken));
+                //    }
+                //    break;
+                case "/setup":
                     {
-                        _commands.Enqueue(new SetScheduleCommand(botClient, _repository, chatId, cancellationToken));
-                    }
-                    break;
-                case "/get_schedule":
-                    {
-                        _commands.Enqueue(new GetScheduleCommand(botClient, _repository, chatId, cancellationToken));
+                        _commands.Enqueue(new TimezoneCommand(botClient, _repository, chatId, cancellationToken));
                     }
                     break;
                 default:
@@ -130,6 +135,18 @@ namespace EngBotApp.UseCases
                     }
                     break;
                 case "change_schedule":
+                    {
+                        _commands.Enqueue(new SetScheduleCommand(botClient, _repository, chatId, cancellationToken));
+                    }
+                    break;
+                case "timezone":
+                    {
+                        var time = (TimeSpan)dataQuery["data"]["time"];
+                        userInfo.Timezone = time;
+                        _repository.Save(userInfo);
+                    }
+                    break;
+                case "accept_timezone":
                     {
                         _commands.Enqueue(new SetScheduleCommand(botClient, _repository, chatId, cancellationToken));
                     }

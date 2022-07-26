@@ -37,12 +37,12 @@ namespace EngBotApp.Commands
                 return;
             }
 
-            var messageId = userInfo.MessageId;
+            var messageId = userInfo.LastMessageId;
             if (messageId == 0)
             {
                 return;
             }
-            userInfo.MessageId = 0;
+            userInfo.LastMessageId = 0;
             _repository.Save(userInfo);
 
             try
