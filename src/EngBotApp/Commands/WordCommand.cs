@@ -44,12 +44,13 @@ namespace EngBotApp.Commands
             {
                 using (var stream = VoiceCollection.GetStream(_userWord.WordId))
                 {
-                    await _bot.SendAudioAsync(
+                    await _bot.SendVoiceAsync(
                         chatId: _chatId,
-                        audio: stream,
+                        voice: stream,
                         caption: $"<b>{_userWord.ToString()}</b>",
                         parseMode: Telegram.Bot.Types.Enums.ParseMode.Html,
-                        cancellationToken: _cancellationToken);
+                        duration: 20,
+                        cancellationToken: _cancellationToken); ;
                 }
             }
             catch
